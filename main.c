@@ -3,17 +3,17 @@
 #include<string.h>
 #include <stdbool.h>
 typedef struct{
-    char cor;
+    int conteudo;
 
-}Peca;
-
+}Posicao;
+//0 = vazio, 1= branca, 2= preta, 3 dama branca, 4 dama preta
 
 void imprimeMatriz();
 void preencheMatrizInicial();
-Peca criaPeca(char cor);
+
 void limpaBuffer();
 
-Peca tabuleiro[8][8];
+Posicao tabuleiro[8][8];
 int main()
 {   int posicao[2];
 
@@ -24,18 +24,14 @@ int main()
 
     return 0;
 }
-Peca criaPeca(char cor){
-    Peca peca;
-    peca.cor=cor;
-    return peca;
-}
+
 void preencheMatrizInicial(){
     int flag=2;
 
     for(int i=0;i<3;i++){
         for(int j=0;j<8;j++){
             if((j%2==0 & i%2==0) || (j%2==1 & i%2==1)){
-                    tabuleiro[i][j].cor='B';
+                    tabuleiro[i][j].conteudo=1;
             }
 
         }
@@ -43,7 +39,7 @@ void preencheMatrizInicial(){
      for(int i=5;i<8;i++){
         for(int j=0;j<8;j++){
             if((j%2==0 & i%2==0) || (j%2==1 & i%2==1)){
-                    tabuleiro[i][j].cor='P';
+                    tabuleiro[i][j].conteudo=2;
             }
 
 
@@ -58,8 +54,10 @@ void imprimeMatriz(){
     for(int i=0;i<8;i++){
         printf(" %c| ",i+65);
         for(int j=0;j<8;j++){
-            if(tabuleiro[i][j].cor==66 ||tabuleiro[i][j].cor==80){
-                printf("%c | ",tabuleiro[i][j].cor);
+            if(tabuleiro[i][j].conteudo==1 ||tabuleiro[i][j].conteudo==2){
+                if(tabuleiro[i][j].conteudo==1)printf("B | ");
+                if(tabuleiro[i][j].conteudo==2)printf("P | ");
+
             }else{
                 printf("  | ");
             }
