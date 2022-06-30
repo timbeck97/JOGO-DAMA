@@ -25,7 +25,8 @@ void imprimeMatriz();
 void preencheMatrizInicial();
 void movePeca();
 Coordenada *calculaPosicoesPossiveis();
-
+void realizaMovimento();
+int verificaPosicaoDigitada();
 void limpaBuffer();
 
 int main(int argc, char **argv[]) {
@@ -40,11 +41,13 @@ int main(int argc, char **argv[]) {
     // }
 
     preencheMatrizInicial(tabuleiro);
-    imprimeMatriz(tabuleiro);
+
 
     while (true) {
+        imprimeMatriz(tabuleiro);
         movePeca(tabuleiro, jogadorAtual);
         jogadorAtual++;
+
     }
 
     return 0;
@@ -80,6 +83,7 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
 }
 
 void imprimeMatriz(Posicao tabuleiro[8][8]) {
+    system("clear||cls");
     // codigo abaixo para imprimi a matriz
     printf("    ");
     for (int a = 1; a <= 8; a++) printf("%d   ", a);
@@ -123,18 +127,19 @@ int *digitaPosicao(int jogada) {
     }
     posicao[0] = dado[0] - 64 - 1;
     posicao[1] = dado[1] - 48 - 1;
-    printf("%d %d\n", posicao[0], posicao[1]);
+    //printf("%d %d\n", posicao[0], posicao[1]);
     return posicao;
 }
 
 int checaPosicao();
 
-Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8], int jogadorAtual) {
+Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8], int jogadorAtual, int *tamanhoArray) {
+
+
     static Coordenada posicoesPossiveis[10];
     int contador = 0;
     int corDoJogador;
     // 1 = branca, 2 = preta
-
     if (jogadorAtual % 2 == 0) {
         corDoJogador = 1;
     } else {
@@ -143,7 +148,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
 
     // peças brancas
     if (corDoJogador == 1) {
-        if (coordenada[0] <= 5 && coordenada[1] <= 5)
+
             if (tabuleiro[coordenada[0] + 1][coordenada[1] + 1].conteudo == 2) {
                 if (tabuleiro[coordenada[0] + 2][coordenada[1] + 2].conteudo == 0) {
                     // jogada possivel
@@ -152,7 +157,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                     contador++;
                 }
             }
-        if (coordenada[0] <= 5 && coordenada[1] >= 2)
+
             if (tabuleiro[coordenada[0] + 1][coordenada[1] - 1].conteudo == 2) {
                 if (tabuleiro[coordenada[0] + 2][coordenada[1] - 2].conteudo == 0) {
                     // jogada possivel
@@ -163,13 +168,13 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
 
         // movimentos simples - branca
-        if (coordenada[0] <= 6 && coordenada[1] <= 6)
+
             if (tabuleiro[coordenada[0] + 1][coordenada[1] + 1].conteudo == 0) {
                 posicoesPossiveis[contador].coordenada[0] = coordenada[0] + 1;
                 posicoesPossiveis[contador].coordenada[1] = coordenada[1] + 1;
                 contador++;
             }
-        if (coordenada[0] <= 6 && coordenada[1] >= 1)
+
             if (tabuleiro[coordenada[0] + 1][coordenada[1] - 1].conteudo == 0) {
                 posicoesPossiveis[contador].coordenada[0] = coordenada[0] + 1;
                 posicoesPossiveis[contador].coordenada[1] = coordenada[1] - 1;
@@ -178,7 +183,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
     }
     // peças pretas
     if (corDoJogador == 2) {
-        if (coordenada[0] >= 2 && coordenada[1] >= 2)
+
             if (tabuleiro[coordenada[0] - 1][coordenada[1] - 1].conteudo == 1) {
                 if (tabuleiro[coordenada[0] - 2][coordenada[1] - 2].conteudo == 0) {
                     // jogada possivel
@@ -187,7 +192,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                     contador++;
                 }
             }
-        if (coordenada[0] >= 2 && coordenada[1] <= 6)
+
             if (tabuleiro[coordenada[0] - 1][coordenada[1] + 1].conteudo == 1) {
                 if (tabuleiro[coordenada[0] - 2][coordenada[1] + 2].conteudo == 0) {
                     // jogada possivel
@@ -198,30 +203,60 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
 
         // movimentos simples - preta
-        if (coordenada[0] >= 1 && coordenada[1] <= 6)
+
             if (tabuleiro[coordenada[0] - 1][coordenada[1] + 1].conteudo == 0) {
                 posicoesPossiveis[contador].coordenada[0] = coordenada[0] - 1;
                 posicoesPossiveis[contador].coordenada[1] = coordenada[1] + 1;
                 contador++;
             }
-        if (coordenada[0] >= 1 && coordenada[1] >= 1)
+
             if (tabuleiro[coordenada[0] - 1][coordenada[1] - 1].conteudo == 0) {
                 posicoesPossiveis[contador].coordenada[0] = coordenada[0] - 1;
                 posicoesPossiveis[contador].coordenada[1] = coordenada[1] - 1;
                 contador++;
             }
 
-        return posicoesPossiveis;
-    }
-}
 
-int calculaTamanhoArray(Coordenada *movimentosPossiveis) {
-    return (sizeof(movimentosPossiveis) / sizeof(Coordenada));
+    }
+        *tamanhoArray=contador;
+
+        return posicoesPossiveis;
+}
+void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], int jogadorAtual, int tamanhoArray){
+
+    int *coordenadaFinal =digitaPosicao(2);
+    int verifica= verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
+    while(!verifica){
+        printf("DIGITE UMA POSICAO VALIDA DENTRE AS OPCOES\n");
+        coordenadaFinal =digitaPosicao(2);
+        verifica= verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
+    }
+    if(jogadorAtual==1){
+        tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=1;
+    }else{
+        tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=1;
+    }
+
+
+
+}
+int verificaPosicaoDigitada(Coordenada *movimentosPossiveis, int tamanhoArray, int coordenadaFinal[2]){
+    int flagLinha=0;
+    int flagColuna=0;
+
+    for(int i=0;i<tamanhoArray;i++){
+        if(movimentosPossiveis[i].coordenada[0]==coordenadaFinal[0])flagLinha=1;
+        if(movimentosPossiveis[i].coordenada[1]==coordenadaFinal[1])flagColuna=1;
+    }
+    //printf("\n\nflag linha: %d\nFlag coluna: %d\n\n",flagLinha,flagColuna);
+    if(flagColuna==0 || flagLinha==0) return 0;
+    else return 1;
 }
 
 void movePeca(Posicao tabuleiro[8][8], int jogadorAtual) {
     int *coordenadaInicial;
     int *coordenadaFinal;
+    int tamanhoArray;
     Coordenada *movimentosPossiveis;
 
     coordenadaInicial = digitaPosicao(1);
@@ -229,10 +264,20 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual) {
         printf("\nPosicao invalida\n");
         coordenadaInicial = digitaPosicao(1);
     }
-    movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual);
-    printf("\nMovimentos possiveis: %d, %d ", movimentosPossiveis[0].coordenada[0], movimentosPossiveis[0].coordenada[1]);
-    printf("\ntamanho array: %d", calculaTamanhoArray(movimentosPossiveis));
-    coordenadaFinal = digitaPosicao(2);
+    movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray);
+
+    //for apenas para verificar os possiveis movimentos
+    for(int i=0;i<tamanhoArray;i++){
+        printf("\nMovimentos possiveis: %d, %d ", movimentosPossiveis[i].coordenada[0], movimentosPossiveis[i].coordenada[1]);
+    }
+
+
+
+    realizaMovimento(movimentosPossiveis, tabuleiro, jogadorAtual, tamanhoArray);
+
+    getchar();
+
+
 }
 
 void limpaBuffer() {
