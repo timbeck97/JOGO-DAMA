@@ -105,9 +105,10 @@ void imprimeMatriz(Posicao tabuleiro[8][8]) {
 }
 
 // retorna um array de coordenada [linha, coluna]
-int *digitaPosicao(int jogada) {
+int *digitaPosicao(int jogada, int posicao) {
     char dado[2];
-    static int posicao[2];
+    static int posicaoInicial[2];
+    static int posicaoFinal[2];
     if (jogada == 1) printf("Digite a posicao da peça a ser movida (ex: a5)");
     if (jogada == 2) printf("Digite a posicao que deseja mover (ex: b4)");
     scanf("%[^\n]", dado);
@@ -125,10 +126,18 @@ int *digitaPosicao(int jogada) {
         limpaBuffer();
         dado[1] = toupper(dado[1]);
     }
-    posicao[0] = dado[0] - 64 - 1;
-    posicao[1] = dado[1] - 48 - 1;
-    //printf("%d %d\n", posicao[0], posicao[1]);
-    return posicao;
+    if(posicao==1){
+        posicaoInicial[0] = dado[0] - 64 - 1;
+        posicaoInicial[1] = dado[1] - 48 - 1;
+        //printf("posicoes digitadas: %d %d\n", posicaoInicial[0], posicaoInicial[1]);
+        return posicaoInicial;
+    }else{
+        posicaoFinal[0] = dado[0] - 64 - 1;
+        posicaoFinal[1] = dado[1] - 48 - 1;
+        //printf("posicoes digitadas: %d %d\n", posicaoFinal[0], posicaoFinal[1]);
+        return posicaoFinal;
+    }
+
 }
 
 int checaPosicao();
@@ -218,21 +227,18 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
 
 
     }
+
         *tamanhoArray=contador;
 
         return posicoesPossiveis;
 }
-void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], int jogadorAtual, int tamanhoArray){
+void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], int jogadorAtual, int tamanhoArray,int coordenadaInicial[2],int coordenadaFinal[2]){
 
-    int *coordenadaFinal =digitaPosicao(2);
-    int verifica= verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
-    while(!verifica){
-        printf("DIGITE UMA POSICAO VALIDA DENTRE AS OPCOES\n");
-        coordenadaFinal =digitaPosicao(2);
-        verifica= verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
-    }
-    if(jogadorAtual==1){
-        tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=1;
+
+    tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo=0;
+    if(jogadorAtual%2==1){
+        tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=2;
+
     }else{
         tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=1;
     }
@@ -259,11 +265,12 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual) {
     int tamanhoArray;
     Coordenada *movimentosPossiveis;
 
-    coordenadaInicial = digitaPosicao(1);
+    coordenadaInicial = digitaPosicao(1,1);
     while (tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo == 0) {
         printf("\nPosicao invalida\n");
-        coordenadaInicial = digitaPosicao(1);
+        coordenadaInicial = digitaPosicao(1,1);
     }
+
     movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray);
 
     //for apenas para verificar os possiveis movimentos
@@ -271,11 +278,18 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual) {
         printf("\nMovimentos possiveis: %d, %d ", movimentosPossiveis[i].coordenada[0], movimentosPossiveis[i].coordenada[1]);
     }
 
+     coordenadaFinal=digitaPosicao(2,2);
+
+    int verifica= verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
+    while(!verifica){
+        printf("DIGITE UMA POSICAO VALIDA DENTRE AS OPCOES\n");
+        coordenadaFinal =digitaPosicao(2,2);
+        verifica= verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
+    }
+
+    realizaMovimento(movimentosPossiveis, tabuleiro, jogadorAtual, tamanhoArray, coordenadaInicial,coordenadaFinal);
 
 
-    realizaMovimento(movimentosPossiveis, tabuleiro, jogadorAtual, tamanhoArray);
-
-    getchar();
 
 
 }
