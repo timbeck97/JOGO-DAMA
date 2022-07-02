@@ -311,6 +311,7 @@ Coordenada retornaCoordernada(Coordenada *movimentosPossiveis, int tamanhoArray,
 void movePeca(Posicao tabuleiro[8][8], int jogadorAtual) {
     int *coordenadaInicial;
     int *coordenadaFinal;
+    char coordenadaLegivel[2];
     int tamanhoArray;
     int qttPecasComiveis;
     Coordenada *movimentosPossiveis;
@@ -325,8 +326,17 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual) {
 
     printf("\n");
     //for apenas para verificar os possiveis movimentos
+     printf("\nMovimentos possiveis: \n");
     for(int i=0;i<tamanhoArray;i++){
-        printf("Movimentos possiveis: %d, %d\n", movimentosPossiveis[i].coordenada[0], movimentosPossiveis[i].coordenada[1]);
+              for( int a = 0; a < 7; a++){
+        if (movimentosPossiveis[i].coordenada[0] == a){
+            coordenadaLegivel[0] = a + 65;
+        }
+         if (movimentosPossiveis[i].coordenada[1] == a){
+            coordenadaLegivel[1] = a +1 +'0';
+        }
+    }
+        printf("%c%c \n",coordenadaLegivel[0],coordenadaLegivel[1]);
     }
     if(qttPecasComiveis>0){
         for(int i=0;i<qttPecasComiveis;i++){
