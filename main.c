@@ -332,6 +332,7 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
     int *coordenadaInicial;
     int *coordenadaFinal;
     int tamanhoArray;
+    char capturadasLegivel[2];
     int qttPecasComiveis;
     Coordenada *movimentosPossiveis;
     turnoJogador(jogadorAtual);
@@ -359,7 +360,15 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
 
     if(qttPecasComiveis>0){
         for(int i=0;i<qttPecasComiveis;i++){
-            printf("Pecas comíveis: %d, %d\n", movimentosPossiveis[i].podeCapturar[i].coordenadaCaptura[0], movimentosPossiveis[i].podeCapturar[i].coordenadaCaptura[1]);
+            for(int a=0;a<7;a++){
+                if(movimentosPossiveis[i].podeCapturar[i].coordenadaCaptura[0] ==a){
+                    capturadasLegivel[0]= a+65;
+                }
+                if(movimentosPossiveis[i].podeCapturar[i].coordenadaCaptura[1] ==a){
+                    capturadasLegivel[1] = a + 1+'0';
+                }
+            }
+            printf("Pecas comíveis: %c%c\n",capturadasLegivel[0],capturadasLegivel[1]);
         }
     }
 
@@ -378,9 +387,9 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
 }
 void formataMovimentosPossiveis(int tamanhoArray, Coordenada *movimentosPossiveis){
    char coordenadaLegivel[2];
-    printf("\nMovimentos possiveis: ");
+    printf("Movimentos possiveis: ");
     for(int i=0;i<tamanhoArray;i++){
-              for( int a = 0; a < 7; a++){
+              for( int a = 0; a < 8; a++){
         if (movimentosPossiveis[i].coordenada[0] == a){
             coordenadaLegivel[0] = a + 65;
         }
