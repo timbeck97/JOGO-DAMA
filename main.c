@@ -14,6 +14,7 @@ typedef struct {
 typedef struct {
     int coordenada[2];
     Capturar podeCapturar[3];
+    int qttPecasPermiteCaptuar;
 } Coordenada;
 
 
@@ -184,6 +185,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
 
                         posicoesPossiveis[contador].podeCapturar[captura].coordenadaCaptura[0]=coordenada[0]+1;
                         posicoesPossiveis[contador].podeCapturar[captura].coordenadaCaptura[1]=coordenada[1]+1;
+                        posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
                         captura++;
                         contador++;
                     }
@@ -206,7 +208,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
 
         // movimentos simples - branca
-            if(coordenada[1]<7){
+            if(coordenada[0]>=1 && coordenada[1]<7 ){
                 if (tabuleiro[coordenada[0] + 1][coordenada[1] + 1].conteudo == 0) {
                     posicoesPossiveis[contador].coordenada[0] = coordenada[0] + 1;
                     posicoesPossiveis[contador].coordenada[1] = coordenada[1] + 1;
@@ -254,7 +256,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
 
         // movimentos simples - preta
-            if(coordenada[1]<7){
+            if(coordenada[0]<=6 && coordenada[1]<7){
                 if (tabuleiro[coordenada[0] - 1][coordenada[1] + 1].conteudo == 0) {
                     posicoesPossiveis[contador].coordenada[0] = coordenada[0] - 1;
                     posicoesPossiveis[contador].coordenada[1] = coordenada[1] + 1;
@@ -283,19 +285,24 @@ void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], 
     tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo=0;
     if(jogadorAtual%2==1){
         tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=2;
-        if(qttPecasComiveis>0){
            Coordenada coordenadaComida = retornaCoordernada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
-           tabuleiro[coordenadaComida.podeCapturar[0].coordenadaCaptura[0]][coordenadaComida.podeCapturar[0].coordenadaCaptura[1]].conteudo=0;
-            *pontosPretas+=1;
-        }
+           if(coordenadaComida.qttPecasPermiteCaptuar>0){
+                *pontosPretas+=1;
+                tabuleiro[coordenadaComida.podeCapturar[0].coordenadaCaptura[0]][coordenadaComida.podeCapturar[0].coordenadaCaptura[1]].conteudo=0;
+           }
+
+
+
 
     }else{
         tabuleiro[coordenadaFinal[0]][coordenadaFinal[1]].conteudo=1;
-        if(qttPecasComiveis>0){
            Coordenada coordenadaComida = retornaCoordernada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
-           tabuleiro[coordenadaComida.podeCapturar[0].coordenadaCaptura[0]][coordenadaComida.podeCapturar[0].coordenadaCaptura[1]].conteudo=0;
-           *pontosBrancas+=1;
-        }
+           if(coordenadaComida.qttPecasPermiteCaptuar>0){
+                *pontosPretas+=1;
+                tabuleiro[coordenadaComida.podeCapturar[0].coordenadaCaptura[0]][coordenadaComida.podeCapturar[0].coordenadaCaptura[1]].conteudo=0;
+           }
+
+
     }
 
 
