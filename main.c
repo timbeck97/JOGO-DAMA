@@ -17,8 +17,8 @@ typedef struct {
 // 0 = vazio,
 // 1 = branca,
 // 2 = preta,
-// 3 = dama branca,
-// 4 = dama preta
+// 3 = dama branca= X
+// 4 = dama preta = Y
 typedef struct {
     int conteudo;
     Coordenada posicao;
@@ -135,14 +135,14 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
     // tabuleiro[4][5].conteudo = 1;
     // tabuleiro[0][2].conteudo = 1;
 
-    // testar preta diagonal direta come 2 pecas ===============================BUG 1
-    // tabuleiro[7][2].conteudo = 2;
-    // tabuleiro[6][3].conteudo = 1;
-    // tabuleiro[4][5].conteudo = 1;
-    // tabuleiro[0][2].conteudo = 1;
-    // tabuleiro[4][3].conteudo = 1;
+    // testar preta diagonal direta come 2 pecas ===============================BUG 1 <-- FIXED
+     tabuleiro[7][2].conteudo = 2;
+     tabuleiro[6][3].conteudo = 1;
+     tabuleiro[4][5].conteudo = 1;
+     tabuleiro[0][2].conteudo = 1;
+     tabuleiro[4][3].conteudo = 1;
 
-    // testar dama preta come dama branca ================================ BUG 2
+    // testar dama preta come dama branca ================================ BUG 2 <-- FIXED
     // tabuleiro[0][7].conteudo = 4;
     // tabuleiro[4][3].conteudo = 3;
     // tabuleiro[0][0].conteudo = 1;
@@ -152,12 +152,20 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
     // tabuleiro[4][3].conteudo = 1;
     // tabuleiro[0][0].conteudo = 1;
 
+    /*
     // testar dama branca come peca preta normal
     tabuleiro[0][7].conteudo = 3;
     tabuleiro[4][3].conteudo = 2;
     tabuleiro[0][0].conteudo = 1;
-
-    // testar
+    */
+    /*
+    // testar DAMA preta pode ser comida por uma branca simples
+    tabuleiro[6][1].conteudo = 4;
+    tabuleiro[6][3].conteudo = 1;
+    tabuleiro[4][5].conteudo = 1;
+    tabuleiro[0][2].conteudo = 1;
+    tabuleiro[4][3].conteudo = 1;
+    */
 }
 
 void imprimeMatriz(Posicao tabuleiro[8][8], int pontosBrancas, int pontosPretas) {
@@ -179,12 +187,11 @@ void imprimeMatriz(Posicao tabuleiro[8][8], int pontosBrancas, int pontosPretas)
                 printf("  | ");
             }
         }
-        if (i == 2) {
-            printf("  BRANCAS -> %d pontos", pontosBrancas);
-        }
-        if (i == 3) {
-            printf("  PRETAS  -> %d pontos", pontosPretas);
-        }
+        if (i == 2) printf("  BRANCAS -> %d pontos", pontosBrancas);
+        if (i == 3) printf("  PRETAS  -> %d pontos", pontosPretas);
+        if(i==0) printf(" DAMA BRANCA = X    DAMA PRETA = Y");
+
+
         printf("\n");
     }
 }
@@ -224,11 +231,11 @@ int *digitaPosicao(int jogada, int posicao) {
     }
 }
 
-Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8], int jogadorAtual, int *tamanhoArray, int *qttPecasComiveis) {
+Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8], int jogadorAtual, int *tamanhoArray) {
     static Coordenada posicoesPossiveis[20];
     int contador = 0;
     int corDoJogador;
-    int captura = 0;
+
     // 1 = branca, 2 = preta
     if (jogadorAtual % 2 == 0) {
         corDoJogador = 1;
@@ -243,9 +250,9 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
     }
     // peças brancas
     if (corDoJogador == 1) {
-        if (tabuleiro[i][j].conteudo == 1) {  // logica abaixo para verificar movimentos de pc normal (nao dama)
+        if (tabuleiro[i][j].conteudo == 1) {  // logica abaixo para verificar movimentos de pc normal (nao dama) direita
             if (i <= 6 && j <= 5) {
-                if (tabuleiro[i + 1][j + 1].conteudo == 2) {
+                if (tabuleiro[i + 1][j + 1].conteudo == 2 || tabuleiro[i + 1][j + 1].conteudo == 4) {
                     if (tabuleiro[i + 2][j + 2].conteudo == 0) {
                         // jogada possivel
                         posicoesPossiveis[contador].coordenada[0] = i + 2;
@@ -254,10 +261,10 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = i + 1;
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = j + 1;
                         posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                        captura++;
+
                         contador++;
-                        // logica abaixo para comer duas pc em sequencia se for possível
-                        if (tabuleiro[i + 3][j + 3].conteudo == 2 && j <= 3) {
+                        // logica abaixo para comer duas pc em sequencia se for possível  ---> comer a proxima pc direita cima
+                        if ((tabuleiro[i + 3][j + 3].conteudo == 2 || tabuleiro[i + 3][j + 3].conteudo == 4) && j <= 3) {
                             if (tabuleiro[i + 4][j + 4].conteudo == 0) {
                                 posicoesPossiveis[contador].coordenada[0] = i + 4;
                                 posicoesPossiveis[contador].coordenada[1] = j + 4;
@@ -270,13 +277,17 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                                 posicoesPossiveis[contador].podeCapturar[1].coordenadaCaptura[1] = j + 3;
                                 posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
                                 contador++;
+
                             }
                         }
+
+
+
                     }
                 }
             }
             if (i <= 6 && j >= 2) {
-                if (tabuleiro[i + 1][j - 1].conteudo == 2) {
+                if (tabuleiro[i + 1][j - 1].conteudo == 2 || tabuleiro[i + 1][j - 1].conteudo == 4) {
                     if (tabuleiro[i + 2][j - 2].conteudo == 0) {
                         // jogada possivel
                         posicoesPossiveis[contador].coordenada[0] = i + 2;
@@ -285,11 +296,11 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = i + 1;
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = j - 1;
                         posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                        captura++;
+
                         contador++;
 
-                        // logica abaixo para comer duas pc em sequencia se for possível
-                        if (tabuleiro[i + 3][j - 3].conteudo == 2 && j >= 4) {
+                        // logica abaixo para comer duas pc em sequencia se for possível -- > comer pc baixo esquerda
+                        if ((tabuleiro[i + 3][j - 3].conteudo == 2 || tabuleiro[i + 3][j - 3].conteudo == 4) && j >= 4) {
                             if (tabuleiro[i + 4][j - 4].conteudo == 0) {
                                 posicoesPossiveis[contador].coordenada[0] = i + 4;
                                 posicoesPossiveis[contador].coordenada[1] = j - 4;
@@ -326,14 +337,14 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
         }
         if (tabuleiro[i][j].conteudo == 3) {
-            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &captura, &contador, 2);
+            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &contador, 2);
         }
     }
     // peças pretas
     if (corDoJogador == 2) {
         if (tabuleiro[i][j].conteudo == 2) {  // logica abaixo para verificar movimentos de pc normal (nao dama)
             if (i >= 2 && j >= 2) {
-                if (tabuleiro[i - 1][j - 1].conteudo == 1) {
+                if (tabuleiro[i - 1][j - 1].conteudo == 1 || tabuleiro[i - 1][j - 1].conteudo == 3) {
                     if (tabuleiro[i - 2][j - 2].conteudo == 0) {
                         // jogada possivel
 
@@ -343,11 +354,11 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = i - 1;
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = j - 1;
                         posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                        captura++;
+
                         contador++;
 
-                        // logica abaixo para comer duas pc em sequencia se for possível
-                        if (tabuleiro[i - 3][j - 3].conteudo == 1 && j >= 4) {
+                        // logica abaixo para comer duas pc em sequencia se for possível -->comer pc cima esquerda
+                        if ((tabuleiro[i - 3][j - 3].conteudo == 1 || tabuleiro[i - 3][j - 3].conteudo == 3) && j >= 4) {
                             if (tabuleiro[i - 4][j - 4].conteudo == 0) {
                                 posicoesPossiveis[contador].coordenada[0] = i - 4;
                                 posicoesPossiveis[contador].coordenada[1] = j - 4;
@@ -366,7 +377,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                 }
             }
             if (i >= 2 && j <= 5) {
-                if (tabuleiro[i - 1][j + 1].conteudo == 1) {
+                if (tabuleiro[i - 1][j + 1].conteudo == 1 || tabuleiro[i - 1][j + 1].conteudo == 3) {
                     if (tabuleiro[i - 2][j + 2].conteudo == 0) {
                         // jogada possivel
                         posicoesPossiveis[contador].coordenada[0] = i - 2;
@@ -375,10 +386,10 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = i - 1;
                         posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = j + 1;
                         posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                        captura++;
+
                         contador++;
                         // logica abaixo para comer duas pc em sequencia se for possível (preta diagonal direita)
-                        if (tabuleiro[i - 3][j + 3].conteudo == 1 && j <= 3) {
+                        if ((tabuleiro[i - 3][j + 3].conteudo == 1 || tabuleiro[i - 3][j + 3].conteudo == 3) && j <= 3) {
                             if (tabuleiro[i - 4][j + 4].conteudo == 0) {
                                 posicoesPossiveis[contador].coordenada[0] = i - 4;
                                 posicoesPossiveis[contador].coordenada[1] = j + 4;
@@ -393,6 +404,26 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
                                 contador++;
                             }
                         }
+                        /*
+                        // logica abaixo para comer duas pc em sequencia se for possível (preta diagonal direita)
+                        if ((tabuleiro[i - 3][j + 1].conteudo == 1 || tabuleiro[i - 3][j + 1].conteudo == 3) && j <= 3) {
+                            if (tabuleiro[i - 4][j].conteudo == 0) {
+                                posicoesPossiveis[contador].coordenada[0] = i - 4;
+                                posicoesPossiveis[contador].coordenada[1] = j;
+
+                                posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = i - 1;
+                                posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = j + 1;
+                                posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
+
+                                posicoesPossiveis[contador].podeCapturar[1].coordenadaCaptura[0] = i - 3;
+                                posicoesPossiveis[contador].podeCapturar[1].coordenadaCaptura[1] = j+1;
+                                posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
+
+
+                                contador++;
+                            }
+                        }
+                        */
                     }
                 }
             }
@@ -414,20 +445,26 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
         }
         if (tabuleiro[i][j].conteudo == 4) {
-            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &captura, &contador, 1);
+            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &contador, 1);
         }
     }
 
-    *qttPecasComiveis = captura;
+
     *tamanhoArray = contador;
 
     return posicoesPossiveis;
 }
-void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int coordenada[2], int *capturaPonteiro, int *contadorPonteiro, int corJogador) {
-    int captura = 0;
+void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int coordenada[2], int *contadorPonteiro, int corJogador) {
+
     int contador = 0;  //<---- VERIFICAR SE DA PRA DEIXAR INICIAR EM 0 OU PRECISA ATRIBUIR O VALOR DO CONTADORPONTEIRO DE INIICIO!!!!!!!!!!
     int i = 1;
-    if (tabuleiro[coordenada[0] + 1][coordenada[1] + 1].conteudo == corJogador) {
+    int corDama;
+    if(corJogador==1){
+        corDama=3;
+    }else{
+        corDama=4;
+    }
+    if (tabuleiro[coordenada[0] + 1][coordenada[1] + 1].conteudo == corJogador || tabuleiro[coordenada[0] + 1][coordenada[1] + 1].conteudo == corDama ) {
         if (tabuleiro[coordenada[0] + 2][coordenada[1] + 2].conteudo == 0) {
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] + 2;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] + 2;
@@ -435,7 +472,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] + 1;
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] + 1;
             posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-            captura++;
+
             contador++;
         }
     } else {
@@ -444,7 +481,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] + i;
             contador++;
 
-            if (tabuleiro[coordenada[0] + i + 1][coordenada[1] + i + 1].conteudo == corJogador) {
+            if (tabuleiro[coordenada[0] + i + 1][coordenada[1] + i + 1].conteudo == corJogador || tabuleiro[coordenada[0] + i + 1][coordenada[1] + i + 1].conteudo == corDama) {
                 if (tabuleiro[coordenada[0] + i + 2][coordenada[1] + i + 2].conteudo == 0) {
                     posicoesPossiveis[contador].coordenada[0] = coordenada[0] + i + 2;
                     posicoesPossiveis[contador].coordenada[1] = coordenada[1] + i + 2;
@@ -452,7 +489,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
                     posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] + i + 1;
                     posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] + i + 1;
                     posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                    captura++;
+
                     contador++;
                 }
             }
@@ -461,7 +498,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
     }
 
     i = 1;
-    if (tabuleiro[coordenada[0] + 1][coordenada[1] - 1].conteudo == corJogador) {
+    if (tabuleiro[coordenada[0] + 1][coordenada[1] - 1].conteudo == corJogador || tabuleiro[coordenada[0] + 1][coordenada[1] - 1].conteudo == corDama) {
         if (tabuleiro[coordenada[0] + 2][coordenada[1] - 2].conteudo == 0) {
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] + 2;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] - 2;
@@ -469,7 +506,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] + 1;
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] - 1;
             posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-            captura++;
+
             contador++;
         }
     } else {
@@ -477,7 +514,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] + i;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] - i;
             contador++;
-            if (tabuleiro[coordenada[0] + i + 1][coordenada[1] - i - 1].conteudo == corJogador) {
+            if (tabuleiro[coordenada[0] + i + 1][coordenada[1] - i - 1].conteudo == corJogador || tabuleiro[coordenada[0] + i + 1][coordenada[1] - i - 1].conteudo == corDama) {
                 if (tabuleiro[coordenada[0] + i + 2][coordenada[1] - i - 2].conteudo == 0) {
                     posicoesPossiveis[contador].coordenada[0] = coordenada[0] + i + 2;
                     posicoesPossiveis[contador].coordenada[1] = coordenada[1] - i - 2;
@@ -486,7 +523,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
                     posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] - i - 1;
 
                     posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                    captura++;
+
                     contador++;
                 }
             }
@@ -495,7 +532,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
     }
 
     i = 1;
-    if (tabuleiro[coordenada[0] - 1][coordenada[1] - 1].conteudo == corJogador) {
+    if (tabuleiro[coordenada[0] - 1][coordenada[1] - 1].conteudo == corJogador || tabuleiro[coordenada[0] - 1][coordenada[1] - 1].conteudo == corDama) {
         if (tabuleiro[coordenada[0] - 2][coordenada[1] - 2].conteudo == 0) {
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] - 2;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] - 2;
@@ -503,7 +540,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] - 1;
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] - 1;
             posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-            captura++;
+
             contador++;
         }
     } else {
@@ -511,15 +548,15 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] - i;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] - i;
             contador++;
-            if (tabuleiro[coordenada[0] - i - 1][coordenada[1] - i - 1].conteudo == corJogador) {
+            if (tabuleiro[coordenada[0] - i - 1][coordenada[1] - i - 1].conteudo == corJogador || tabuleiro[coordenada[0] - i - 1][coordenada[1] - i - 1].conteudo == corDama) {
                 if (tabuleiro[coordenada[0] - i - 2][coordenada[1] - i - 2].conteudo == 0) {
                     posicoesPossiveis[contador].coordenada[0] = coordenada[0] + i - 2;
                     posicoesPossiveis[contador].coordenada[1] = coordenada[1] + i - 2;
 
-                    posicoesPossiveis[contador].podeCapturar[captura].coordenadaCaptura[0] = coordenada[0] - i - 1;
-                    posicoesPossiveis[contador].podeCapturar[captura].coordenadaCaptura[1] = coordenada[1] - i - 1;
+                    posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] - i - 1;
+                    posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] - i - 1;
                     posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                    captura++;
+
                     contador++;
                 }
             }
@@ -527,7 +564,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
         }
     }
     i = 1;
-    if (tabuleiro[coordenada[0] - 1][coordenada[1] + 1].conteudo == corJogador) {
+    if (tabuleiro[coordenada[0] - 1][coordenada[1] + 1].conteudo == corJogador || tabuleiro[coordenada[0] - 1][coordenada[1] + 1].conteudo == corDama) {
         if (tabuleiro[coordenada[0] - 2][coordenada[1] + 2].conteudo == 0) {
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] - 2;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] + 2;
@@ -535,7 +572,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] - 1;
             posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] + 1;
             posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-            captura++;
+
             contador++;
         }
     } else {
@@ -543,7 +580,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
             posicoesPossiveis[contador].coordenada[0] = coordenada[0] - i;
             posicoesPossiveis[contador].coordenada[1] = coordenada[1] + i;
             contador++;
-            if (tabuleiro[coordenada[0] - i - 1][coordenada[1] + i + 1].conteudo == corJogador) {
+            if (tabuleiro[coordenada[0] - i - 1][coordenada[1] + i + 1].conteudo == corJogador || tabuleiro[coordenada[0] - i - 1][coordenada[1] + i + 1].conteudo == corDama) {
                 if (tabuleiro[coordenada[0] - i - 2][coordenada[1] + i + 2].conteudo == 0) {
                     posicoesPossiveis[contador].coordenada[0] = coordenada[0] + i - 2;
                     posicoesPossiveis[contador].coordenada[1] = coordenada[1] + i + 2;
@@ -551,7 +588,7 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
                     posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[0] = coordenada[0] - i - 1;
                     posicoesPossiveis[contador].podeCapturar[0].coordenadaCaptura[1] = coordenada[1] + i + 1;
                     posicoesPossiveis[contador].qttPecasPermiteCaptuar++;
-                    captura++;
+
                     contador++;
                 }
             }
@@ -559,10 +596,10 @@ void movimentosDama(Coordenada *posicoesPossiveis, Posicao tabuleiro[8][8], int 
         }
     }
 
-    *capturaPonteiro = *capturaPonteiro + captura;
+
     *contadorPonteiro = *contadorPonteiro + contador;
 }
-void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], int jogadorAtual, int tamanhoArray, int qttPecasComiveis, int coordenadaInicial[2], int coordenadaFinal[2], int *pontosBrancas, int *pontosPretas) {
+void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], int jogadorAtual, int tamanhoArray, int coordenadaInicial[2], int coordenadaFinal[2], int *pontosBrancas, int *pontosPretas) {
     // retira a peça da posição anterior
     int linhaInicial = coordenadaInicial[0];
     int colunaInicial = coordenadaInicial[1];
@@ -578,7 +615,7 @@ void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], 
         }
 
         Coordenada coordenadaComida = retornaCoordernada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
-        if (coordenadaComida.qttPecasPermiteCaptuar > 0 && qttPecasComiveis) {
+        if (coordenadaComida.qttPecasPermiteCaptuar > 0) {
             for (int j = 0; j < coordenadaComida.qttPecasPermiteCaptuar; j++) {
                 *pontosPretas += 1;
                 tabuleiro[coordenadaComida.podeCapturar[j].coordenadaCaptura[0]][coordenadaComida.podeCapturar[j].coordenadaCaptura[1]].conteudo = 0;
@@ -598,7 +635,7 @@ void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], 
             tabuleiro[linhaFinal][colunaFinal].conteudo = 1;
         }
         Coordenada coordenadaComida = retornaCoordernada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
-        if (coordenadaComida.qttPecasPermiteCaptuar > 0 && qttPecasComiveis) {
+        if (coordenadaComida.qttPecasPermiteCaptuar > 0) {
             for (int j = 0; j < coordenadaComida.qttPecasPermiteCaptuar; j++) {
                 *pontosBrancas += 1;
                 tabuleiro[coordenadaComida.podeCapturar[j].coordenadaCaptura[0]][coordenadaComida.podeCapturar[j].coordenadaCaptura[1]].conteudo = 0;
@@ -645,19 +682,10 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
     int *coordenadaFinal;
     int tamanhoArray;
     char capturadasLegivel[2];
-    int qttPecasComiveis;
     int pecaCerta = 0;
     int damaCerta;
     Coordenada *movimentosPossiveis;
     imprimeTurnoJogador(jogadorAtual);
-    /*
-    if(jogadorAtual%2==0){ //logica necessaria pois estava deixando jogador mover pc de outro jogaro (kkkk)
-        pecaCerta=2;
-        damaCerta=4;
-    }else {
-        pecaCerta=1;
-        damaCerta=3;
-    }*/
 
     coordenadaInicial = digitaPosicao(1, 1);
     if (jogadorAtual % 2 == 0) {  // brancas jogando
@@ -673,7 +701,7 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
         }
     }
 
-    movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray, &qttPecasComiveis);
+    movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray);
     while (tamanhoArray == 0) {
         printf("---->Digite uma posicao que possa realizar movimento!<----\n");
         coordenadaInicial = digitaPosicao(1, 1);
@@ -681,29 +709,12 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
             printf("---->Posicao invalida<----\n");
             coordenadaInicial = digitaPosicao(1, 1);
         }
-        movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray, &qttPecasComiveis);
+        movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray);
     }
-
     printf("\n");
 
     formataMovimentosPossiveis(tamanhoArray, movimentosPossiveis);
-    /*
-    if(qttPecasComiveis>0){
-        for(int i=0;i<qttPecasComiveis;i++){
-            for(int a=0;a<7;a++){
-                if(movimentosPossiveis[i].podeCapturar[i].coordenadaCaptura[0] ==a){
-                    capturadasLegivel[0]= a+65;
-                }
-                if(movimentosPossiveis[i].podeCapturar[i].coordenadaCaptura[1] ==a){
-                    capturadasLegivel[1] = a + 1+'0';
-                }
-            }
-            printf("Pecas comíveis: %c%c\n",capturadasLegivel[0],capturadasLegivel[1]);
-        }
-    }
-    */
 
-    if (qttPecasComiveis > 0) {
         printf("PODE COMER: ");
         for (int i = 0; i < tamanhoArray; i++) {
             if (movimentosPossiveis[i].qttPecasPermiteCaptuar > 0) {
@@ -715,7 +726,7 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
             }
         }
         printf("\n");
-    }
+
 
     coordenadaFinal = digitaPosicao(2, 2);
 
@@ -726,11 +737,10 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
         verifica = verificaPosicaoDigitada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
     }
 
-    realizaMovimento(movimentosPossiveis, tabuleiro, jogadorAtual, tamanhoArray, qttPecasComiveis, coordenadaInicial, coordenadaFinal, pontosBrancas, pontosPretas);
+    realizaMovimento(movimentosPossiveis, tabuleiro, jogadorAtual, tamanhoArray, coordenadaInicial, coordenadaFinal, pontosBrancas, pontosPretas);
 }
 // verifica o fim do jogo (olha se nao existe mais movimentos possiveis pra algum dos jogadores
 int verificaFimDoJogo(int jogadorAtual, Posicao tabuleiro[8][8]) {
-    int pcComidas;
     int movimentosBrancas = 0, movimentosPretas = 0;
     int coordernada[2];
     int arrayBranca = 0, arrayPreta = 0;
@@ -741,17 +751,17 @@ int verificaFimDoJogo(int jogadorAtual, Posicao tabuleiro[8][8]) {
             coordernada[1] = j;
             if (tabuleiro[i][j].conteudo == 1 || tabuleiro[i][j].conteudo == 3) {
                 // abaixo foi necessario chamar 2 vezes o metodo pq dentro do metodo ele verifica a rodada, ai precisou chamar 2 vezes pra contabilizar as jogadas de cada cor
-                calculaPosicoesPossiveis(coordernada, tabuleiro, 1, &arrayBranca, &pcComidas);
+                calculaPosicoesPossiveis(coordernada, tabuleiro, 1, &arrayBranca);
                 movimentosBrancas += arrayBranca;
-                calculaPosicoesPossiveis(coordernada, tabuleiro, 2, &arrayBranca, &pcComidas);
+                calculaPosicoesPossiveis(coordernada, tabuleiro, 2, &arrayBranca);
                 movimentosBrancas += arrayBranca;
                 arrayBranca = 0;
             }
             if (tabuleiro[i][j].conteudo == 2 || tabuleiro[i][j].conteudo == 4) {
                 // abaixo foi necessario chamar 2 vezes o metodo pq dentro do metodo ele verifica a rodada, ai precisou chamar 2 vezes pra contabilizar as jogadas de cada cor
-                calculaPosicoesPossiveis(coordernada, tabuleiro, 1, &arrayPreta, &pcComidas);
+                calculaPosicoesPossiveis(coordernada, tabuleiro, 1, &arrayPreta);
                 movimentosPretas += arrayPreta;
-                calculaPosicoesPossiveis(coordernada, tabuleiro, 2, &arrayPreta, &pcComidas);
+                calculaPosicoesPossiveis(coordernada, tabuleiro, 2, &arrayPreta);
                 movimentosPretas += arrayPreta;
                 arrayPreta = 0;
             }
