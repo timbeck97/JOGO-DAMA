@@ -71,7 +71,7 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
             tabuleiro[i][j].posicao.coordenada[1] = j;
         }
     }
-
+    /*
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 8; j++) {
             // for (int j = 5; j < 8; j++) { // ALTEREI ESSA LINHA PRA PODER TESTAR AS DAMAS MAIS RAPIDO SACASTES?
@@ -88,15 +88,15 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
             }
         }
     }
-
+    */
     // tabuleiro[2][3].conteudo=4; //<------------------ REMOVER ISSO AQUI DPS POIS COLOQUEI APENAS PARA FAZER A DAMA RAPIDO
-    /*
+
     tabuleiro[4][2].conteudo=2;
     tabuleiro[3][5].conteudo=1;
     tabuleiro[1][3].conteudo=1;
     tabuleiro[1][5].conteudo=1;
     tabuleiro[2][4].conteudo=4;
-    */
+
 }
 
 void imprimeMatriz(Posicao tabuleiro[8][8], int pontosBrancas, int pontosPretas) {
@@ -230,7 +230,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
         }
         if (tabuleiro[i][j].conteudo == 3) {
-            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &captura, &contador, 1);
+            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &captura, &contador, 2);
         }
     }
     // peças pretas
@@ -284,7 +284,7 @@ Coordenada *calculaPosicoesPossiveis(int coordenada[2], Posicao tabuleiro[8][8],
             }
         }
         if (tabuleiro[i][j].conteudo == 4) {
-            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &captura, &contador, 2);
+            movimentosDama(posicoesPossiveis, tabuleiro, coordenada, &captura, &contador, 1);
         }
     }
 
@@ -439,14 +439,16 @@ void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], 
     int linhaFinal = coordenadaFinal[0];
     int colunaFinal = coordenadaFinal[1];
 
-    tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo = 0;
+
 
     if (jogadorAtual % 2 == 1) {
         // PRETAS
-        if (tabuleiro[linhaFinal][colunaFinal].conteudo != 4) {
-            // se a peça não for dama preta, atribui uma peça preta normal
+        if (tabuleiro[linhaInicial][colunaInicial].conteudo == 4) {
+            tabuleiro[linhaFinal][colunaFinal].conteudo = 4;
+        }else{
             tabuleiro[linhaFinal][colunaFinal].conteudo = 2;
         }
+
 
         Coordenada coordenadaComida = retornaCoordernada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
         if (coordenadaComida.qttPecasPermiteCaptuar > 0 && qttPecasComiveis) {
@@ -460,8 +462,10 @@ void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], 
 
     } else {
         // BRANCAS
-        if (tabuleiro[linhaFinal][colunaFinal].conteudo != 3) {
+        if (tabuleiro[linhaInicial][colunaInicial].conteudo == 3) {
             // se a peça não for dama branca, atribui uma peça branca normal
+            tabuleiro[linhaFinal][colunaFinal].conteudo = 3;
+        }else{
             tabuleiro[linhaFinal][colunaFinal].conteudo = 1;
         }
         Coordenada coordenadaComida = retornaCoordernada(movimentosPossiveis, tamanhoArray, coordenadaFinal);
@@ -473,6 +477,7 @@ void realizaMovimento(Coordenada *movimentosPossiveis, Posicao tabuleiro[8][8], 
             tabuleiro[linhaFinal][colunaFinal].conteudo = 3;  // DAMA BRANCA
         }
     }
+        tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo = 0; //coordenada inicial fica sem pc depois do movimento.
 }
 
 int verificaPosicaoDigitada(Coordenada *movimentosPossiveis, int tamanhoArray, int coordenadaFinal[2]) {
@@ -524,10 +529,19 @@ void movePeca(Posicao tabuleiro[8][8], int jogadorAtual, int *pontosBrancas, int
     }*/
 
     coordenadaInicial = digitaPosicao(1, 1);
-    while (tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo == 0) {
+    if(jogadorAtual%2==0){ //brancas jogando
+       while (tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo !=1 && tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo !=3) {
         printf("---->Posicao invalida<----\n");
         coordenadaInicial = digitaPosicao(1, 1);
     }
+    //brancas jogando
+    }else{
+        while(tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo !=2 && tabuleiro[coordenadaInicial[0]][coordenadaInicial[1]].conteudo !=4){
+            printf("---->Posicao invalida<----\n");
+            coordenadaInicial = digitaPosicao(1, 1);
+        }
+    }
+
 
     movimentosPossiveis = calculaPosicoesPossiveis(coordenadaInicial, tabuleiro, jogadorAtual, &tamanhoArray, &qttPecasComiveis);
     while (tamanhoArray == 0) {

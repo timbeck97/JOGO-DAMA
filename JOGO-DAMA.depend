@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1656903829 source:/home/tim/Tim/C/JOGO-DAMA/JOGO-DAMA/main.c
+1657070486 source:/home/tim/Tim/C/JOGO-DAMA/JOGO-DAMA/main.c
 	<ctype.h>
 	<stdbool.h>
 	<stdio.h>
