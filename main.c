@@ -81,7 +81,7 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
             tabuleiro[i][j].posicao.coordenada[1] = j;
         }
     }
-    /*
+
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 8; j++) {
             // for (int j = 5; j < 8; j++) { // ALTEREI ESSA LINHA PRA PODER TESTAR AS DAMAS MAIS RAPIDO SACASTES?
@@ -98,7 +98,7 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
             }
         }
     }
-    */
+
 
     /*
     tabuleiro[4][2].conteudo=2;
@@ -136,12 +136,13 @@ void preencheMatrizInicial(Posicao tabuleiro[8][8]) {
     // tabuleiro[0][2].conteudo = 1;
 
     // testar preta diagonal direta come 2 pecas ===============================BUG 1 <-- FIXED
+    /*
      tabuleiro[7][2].conteudo = 2;
      tabuleiro[6][3].conteudo = 1;
      tabuleiro[4][5].conteudo = 1;
      tabuleiro[0][2].conteudo = 1;
      tabuleiro[4][3].conteudo = 1;
-
+    */
     // testar dama preta come dama branca ================================ BUG 2 <-- FIXED
     // tabuleiro[0][7].conteudo = 4;
     // tabuleiro[4][3].conteudo = 3;
